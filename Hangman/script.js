@@ -1,93 +1,122 @@
-const form = document.getElementById("form");
-const username = document.getElementById("username");
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-const password2 = document.getElementById("password confirmation");
+const wordEl = document.getElementById("word");
+const wrongLettersEl = document.getElementById("wrong-letters");
+const playAgainBtn = document.getElementById("play-button");
+const popup = document.getElementById("popup-container");
+const notification = document.getElementById("notification-container");
+const finalMessage = document.getElementById("final-message");
 
-//Show input error message
-function showError(input, message) {
-  const formControl = input.parentElement;
-  formControl.className = "form-control error";
-  const small = formControl.querySelector("small");
-  small.innerText = message;
-}
+const figureParts = document.querySelectorAll(".figure-part");
 
-//show success outline
-function showSuccess(input) {
-  const formControl = input.parentElement;
-  formControl.className = "form-control success";
-}
+const words = ["application", "programming", "interface", "wizard"];
 
-//Check email is valid
-function checkEmail(input) {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+let selectedWord = words[Math.floor(Math.random() * words.length)];
 
-  if (re.test(input.value.trim())) {
-    showSuccess(input);
-  } else {
-    showError(input, "Email is not valid.");
+const correctLetters = [];
+
+const wrongLetters = [];
+
+// display hidden word
+function displayWord() {
+  wordEl.innerHTML = `
+    ${selectedWord
+      .split("")
+      .map(
+        (letter) => `
+        <span class="letter">
+        ${correctLetters.includes(letter) ? letter : ""} 
+        </span>
+        `
+      )
+      .join("")}   
+    
+    `;
+  const innerWord = wordEl.innerText.replace(/\n/g, "");
+  if (innerWord == selectedWord) {
+    finalMessage.innerText = "Congratulations! You won! 😊";
+    popup.style.display = "flex";
   }
 }
 
-//Check password contains at least one numeric digit and a special character
-function checkPassword(input) {
-  const re = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
+// Update the wrong Letters
 
-  if (re.test(input.value)) {
-    showSuccess(input);
-  } else {
-    showError(
-      input,
-      "Password must have at least one digit and a special character"
-    );
-  }
-}
+function updateWrongLettersEl() {
+    // display wrong letters
+    wrongLettersEl.innerHTML = `
+    ${wrongLetters.length > 0 ? '<p>Wrong</p>' : ''}
+    ${wrongLetters.map(letter => 
+        `<span>${letter}</span>`
+    )}
+    `;
 
-//Check reqauired fields
-function checkRequired(inputArr) {
-  inputArr.forEach((input) => {
-    if (input.value.trim() === "") {
-      showError(input, `${getFieldName(input)} is required.`);
-    } else {
-      showSuccess(input);
+    // display parts
+    figureParts.forEach((part, index) => {
+        const errors = wrongLetters.length;
+
+        if(index < errors) {
+            part.style.display = 'block';
+        } else {
+            part.style.display = 'none'
+        }
+    });
+
+    // check if lost
+
+    if(wrongLetters.length == figureParts.length) {
+
+        finalMessage.innerText = 'Unfortunately you lost. 😵'
+
+        popup.style.display = 'flex';
+
     }
-  });
+
 }
 
-//Check input length
-function checkLength(input, min, max) {
-  if (input.value.length < min) {
-    showError(
-      input,
-      `${getFieldName(input)} must be at least ${min} characters`
-    );
-  } else if (input.value.length > max) {
-    showError(
-      input,
-      `${getFieldName(input)} must be less than ${max} characters`
-    );
-  } else showSuccess(input);
+// Show Notification
+function showNotification() {
+  notification.classList.add("show");
+
+  setTimeout(() => {
+    notification.classList.remove("show");
+  }, 2000);
 }
 
-//Check passwords match
-function checkPasswordsMatch(input1, input2) {
-  if (input1.value !== input2.value) {
-    showError(input2, "Passwords do not match");
+// Keydown letter press
+window.addEventListener("keydown", (e) => {
+  if (e.keyCode >= 64 && e.keyCode <= 90) {
+    const letter = e.key;
+
+    if (selectedWord.includes(letter)) {
+      if (!correctLetters.includes(letter)) {
+        correctLetters.push(letter);
+
+        displayWord();
+      } else {
+        showNotification();
+      }
+    } else {
+      if (!wrongLetters.includes(letter)) {
+        wrongLetters.push(letter);
+
+        updateWrongLettersEl();
+      } else {
+        showNotification();
+      }
+    }
   }
-}
-
-//Get Field Name
-function getFieldName(input) {
-  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
-}
-
-//Event listeners
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  checkRequired([username, email, password, password2]);
-  checkLength(username, 3, 15);
-  checkEmail(email);
-  checkLength(password, 6, 15);
-  checkPassword(password);
-  checkPasswordsMatch(password, password2);
 });
+
+// Restart game and play again
+ playAgainBtn.addEventListener('click', () => {
+     // empty arrays
+     correctLetters.splice(0);
+     wrongLetters.splice(0);
+
+     selectedWord = words[Math.floor(Math.random() * words.length)];
+
+     displayWord();
+
+     updateWrongLettersEl();
+     popup.style.display = 'none';
+ })
+
+displayWord();
