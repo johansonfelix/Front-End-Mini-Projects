@@ -168,23 +168,10 @@ button:focus{
     padding: 20px;
 }
 
-.modal-form div {
-    margin: 15px 0;
 
-}
 
-.modal-form label{
-    display: block;
-    margin-bottom:5px;
- 
-}
 
-.modal-form .form-input {
-    padding: 8px;
-    width: 100%;
-    border: 1px solid #ccc ;
-}
-   
+
 
 .close-btn {
     background: transparent;
