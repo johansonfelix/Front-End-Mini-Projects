@@ -12,4 +12,8 @@
   </div>
   
   <h3>Projects</h3>
-  * <a href="Movie-Seat-Booking">Movie-Seat-Boooking</a>
+  <ul>
+  <li>
+   <a href="Movie-Seat-Booking">Movie-Seat-Boooking</a>
+  </li>
+  </ul>
